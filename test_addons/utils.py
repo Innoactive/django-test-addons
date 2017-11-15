@@ -1,32 +1,26 @@
-# inbuilt python imports
 import os
 import shutil
 
-# inbuild django imports
-from django.http import HttpRequest
 from django.conf import settings
+from django.http import HttpRequest
 from django.utils.module_loading import import_module
+# noinspection PyUnresolvedReferences
+from mongoengine.connection import DEFAULT_CONNECTION_NAME, _connections, get_connection, _dbs
 
-# third-party django imports
-from mongoengine.connection import (DEFAULT_CONNECTION_NAME, _connections, get_connection,
-    _dbs)
-
-# inter-app imports
-
-# local imports
 
 class EnhancedHttpRequest(HttpRequest):
 
-    def __init__(self, method = 'GET'):
+    def __init__(self, method='GET'):
         super(EnhancedHttpRequest, self).__init__()
         self.method = method
 
         session_engine = import_module(settings.SESSION_ENGINE)
-        self.session = session_engine.SessionStore(session_key = None)
+        self.session = session_engine.SessionStore(session_key=None)
+
 
 class TestViewMixin(object):
 
-    def create_view_object(self, view, request, args = [], kwargs = {}):
+    def create_view_object(self, view, request, args=[], kwargs={}):
         view_object = view()
         view_object.request, view_object.args, view_object.kwargs = request, args, kwargs
 
@@ -34,18 +28,17 @@ class TestViewMixin(object):
 
 
 class ClearFileStorageMixin(object):
-
     TEST_STORAGE_DIRECTORY = None
 
     def tearDown(self):
         if self.TEST_STORAGE_DIRECTORY:
-            shutil.rmtree(self.TEST_STORAGE_DIRECTORY, ignore_errors = True)
+            shutil.rmtree(self.TEST_STORAGE_DIRECTORY, ignore_errors=True)
             os.makedirs(self.TEST_STORAGE_DIRECTORY)
 
     @classmethod
     def tearDownAll(cls):
         if self.TEST_STORAGE_DIRECTORY:
-            shutil.rmtree(self.TEST_STORAGE_DIRECTORY, ignore_errors = True)
+            shutil.rmtree(self.TEST_STORAGE_DIRECTORY, ignore_errors=True)
             os.makedirs(self.TEST_STORAGE_DIRECTORY)
 
 
@@ -64,19 +57,19 @@ class CopyLargeFileMixin(ClearFileStorageMixin):
     TEST_STORAGE_DIRECTORY = None
 
     def tearDown(self):
-	if not self.STORED_FILE_PATH:
+        if not self.STORED_FILE_PATH:
             return super(CopyLargeFileMixin, self).tearDown()
 
-	super(CopyLargeFileMixin, self).tearDown()
-	shutil.copy(self.STORED_FILE_PATH, self.TEST_STORAGE_DIRECTORY)
+        super(CopyLargeFileMixin, self).tearDown()
+        shutil.copy(self.STORED_FILE_PATH, self.TEST_STORAGE_DIRECTORY)
 
     @classmethod
     def tearDownAll(cls):
-	if not self.STORED_FILE_PATH:
-	    return super(CopyLargeFileMixin, cls).tearDownAll()
-        
-	super(CopyLargeFileMixin, cls).tearDownAll()
-	shutil.copy(self.STORED_FILE_PATH, self.TEST_STORAGE_DIRECTORY)
+        if not self.STORED_FILE_PATH:
+            return super(CopyLargeFileMixin, cls).tearDownAll()
+
+        super(CopyLargeFileMixin, cls).tearDownAll()
+        shutil.copy(self.STORED_FILE_PATH, self.TEST_STORAGE_DIRECTORY)
 
 
 class ModifySessionMixin(object):
